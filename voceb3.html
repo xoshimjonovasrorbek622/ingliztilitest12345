@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ingliz tili so'z boyligi testi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; padding: 15px 0 50px 0; }
+    .quiz-card { border: none; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+    .set-selector-wrapper {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 15px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .set-selector-wrapper button {
+      flex: 0 0 auto;
+    }
+
+    .set-selector-wrapper::-webkit-scrollbar { display: none; }
+
+    .word-box { background: #f8f9fa; border-radius: 15px; padding: 30px 15px; margin-bottom: 20px; border: 2px dashed #dee2e6; }
+    .target-word { font-size: 2rem; font-weight: 800; color: #0d6efd; display: block; word-break: break-word; }
+    .opt-btn { padding: 12px; font-weight: 600; border-radius: 12px; border: 2px solid #f1f3f5; background: white; width: 100%; margin-bottom: 8px; }
+    .correct { background-color: #198754 !important; color: white !important; border-color: #198754 !important; }
+    .wrong { background-color: #dc3545 !important; color: white !important; border-color: #dc3545 !important; }
+    .active-set { background-color: #0d6efd !important; color: white !important; }
+    .card-header a {
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.card-header a:hover {
+  background-color: #6c757d;
+  color: white;
+}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card quiz-card">
+    <div class="card-header bg-white border-0 pt-3">
+  <div class="d-flex justify-content-start mb-2">
+    <a href="index.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill me-1" viewBox="0 0 16 16">
+        <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
+      </svg>
+      Asosiy sahifa
+    </a>
+  </div>
+
+  <h4 class="text-center fw-bold">Ingliz tili testi</h4>
+  <div class="set-selector-wrapper" id="set-selector">
+    </div>
+</div>
+
+    <div class="card-body p-3">
+      <div class="d-flex justify-content-between mb-2 fw-bold small">
+        <span class="text-secondary" id="counter-label">1/10</span>
+        <span class="text-primary" id="score-label">Ball: 0</span>
+      </div>
+      <div class="progress mb-3" style="height: 8px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-fill"></div>
+      </div>
+
+      <div class="word-box text-center" onclick="speak()">
+        <span class="target-word" id="target-word">Yuklanmoqda...</span>
+        <p class="text-muted mb-0 mt-2 small">🔊 Eshitish uchun bosing</p>
+      </div>
+
+      <div id="options-grid"></div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-warning flex-fill fw-bold text-white" id="hint-btn">🔍 Tekshirish</button>
+        <button class="btn btn-primary flex-fill fw-bold" id="next-btn">Keyingi ➡️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const allSets = [
+
+[
+    ['coat hanger', 'vishalka (shkaf ichidagi)'], ['coat stand', 'dumaloq vishalka'], ['potato peeler', 'sabzavot archiladigan pichoq'], ['lightbulb', 'lampochka'], ['colander', 'chovli'],
+    ['broom', 'supurgi'], ['egg slicer', 'tuxum kesgich'], ['dustpan', 'axlat kuragi'], ['carpet beater', 'gilam qoqadigan to’qmoq'], ['scrubbing brush', 'kiyim cho’tkasi'],
+    ['brush', 'cho’tka (taramoq)'], ['cheese slicer', 'pishloq maydalagich'], ['tea towel', 'oshxona sochiq'], ['peculiar / strange/odd', 'g’alati'], ['cheeky / rude', 'surbet, qo’pol'],
+    ['enormous / huge', 'ulkan, bahaybat'], ['hilarious / very funny', 'xushchaqchaq'], ['bashful / shy', 'uyatchan, iboli'], ['enjoyable / pleasant', 'yoqimli, dilkash'], ['ample / sufficient', 'yetarli'],
+    ['vital / essential / important', 'muhim, zarur'], ['attractive / handsome / good-looking', 'chiroyli, ko’rkam'], ['unbelievable / incredible', 'ishonib bo’lmas'], ['big-headed / conceited', 'kekkaygan, manman'], ['keen / enthusiastic', 'qiziquvchan, zavqli'],
+    ['authentic / genuine', 'asl, haqiqiy'], ['obstinate / stubborn', 'o’jar, qaysar'], ['appalling / terrible', 'qo’rqinchli, daxshatli'], ['audience', 'tomoshabinlar'], ['walk out', 'chiqib ketish, ish tashlash'],
+    ['in the middle of', 'ning o’rtasida'], ['ambition', 'orzu, istak'], ['get on in life', 'muvaffaqiyatli yashash'], ['palace', 'saroy'], ['castle', 'qasr'],
+    ['monk', 'rohib'], ['nun', 'rohiba'], ['monastery', 'rohiblar joyi'], ['convent', 'rohibalar joyi'], ['barracks', 'kazarma'],
+    ['prisoner', 'mahbus'], ['cell', 'kamera, hujayra'], ['gipsy', 'lo’li'], ['caravan', 'furgon'], ['igloo', 'muz uy'],
+    ['eskimo', 'eskimolar'], ['hive', 'asalari uyasi'], ['nest', 'qush uyasi'], ['kennel', 'it uyi'], ['stable', 'otxona'],
+    ['sty', 'cho’chqaxona'], ['web', 'o’rgimchak to’ri'], ['eyrie', 'burgut uyasi'], ['somehow', 'bir amallab'], ['hole', 'teshik, uya'],
+    ['lunatic', 'aqldan ozgan, jinni'], ['avoid', 'oldini olmoq, qochmoq'], ['dilemma', 'qiyin ahvol (tanlov)'], ['compartment', 'kupe (bo’lma)'], ['express', 'tezkor'],
+    ['convince', 'ishontirmoq'], ['sane', 'aqli raso'], ['insane', 'aqli noraso, jinni'], ['draught', 'yelvizak'], ['draughts', 'shashka'],
+    ['wrap', 'o’ramoq'], ['inspector', 'tekshiruvchi'], ['attack', 'hujum, xuruj'], ['communication', 'aloqa'], ['cord', 'ip, shnur'],
+    ['communication cord', 'favqulodda tormoz'], ['official', 'rasmiy, mas’ul'], ['notice', 'e’lon, ogohlantirish'], ['notice-board', 'e’lonlar taxtasi'], ['escaped', 'qochgan'],
+    ['throughout', 'har tomonlama'], ['arrest', 'qamoqqa olmoq'], ['strait-jacket', 'tinchlantiruvchi ko’ylak'], ['mental hospital', 'ruhiy kasalxona'], ['thought', 'fikr, o’y'],
+    ['catch fire', 'o’t olmoq'], ['pull oneself together', 'o’zini qo’lga olmoq'], ['mill', 'tegirmon'], ['miller', 'tegirmonchi'], ['pepper', 'murch'],
+    ['pepper mill', 'murch maydalagich'], ['liquidizer/blender', 'blender'], ['fire guard', 'olovdan himoya setkasi'], ['guard', 'qo’riqchi'], ['bowl', 'kosa'],
+    ['tray', 'patnis'], ['briefcase', 'portfel'], ['suitcase', 'chamadon'], ['lemon squeezer', 'limon siqqich'], ['tea strainer', 'choy suzgich'],
+    ['bellow', 'ho’ngramoq'], ['bellows', 'dam bosqon'], ['bottle opener', 'ochqich'], ['ladle', 'cho’mich'], ['harmless', 'zararsiz']
+],
+
+[
+    ['harmful', 'zararli, ziyonli'], ['generous', 'sahiy, sahovatli'], ['mean', 'baxil, xasis'], ['permanent', 'doimiy, o’zgarmas'], ['temporary', 'vaqtinchalik'],
+    ['industrious', 'mehnatkash, ishchan'], ['lazy', 'dangasa, ish yoqmas'], ['gigantic', 'bahaybat'], ['minute', 'mayda, kichkina'], ['Friendly', 'do’stona'],
+    ['hostile', 'adovatli, dushmanlik ruhida'], ['dull', 'zerikarli'], ['exciting', 'qiziqarli, maroqli'], ['daring', 'jur’atli, jasoratli'], ['timid', 'jur’atsiz, qo’rqoq'],
+    ['Dear', 'qimmat'], ['cheap', 'arzon'], ['narrow-minded', 'tor fikrli, kaltafahm'], ['broad-minded', 'keng fikrli'], ['real', 'haqiqiy, mavjud'],
+    ['imaginary', 'hayoliy, farazdagi'], ['horrible', 'daxshatli, yomon'], ['wonderful', 'ajoyib'], ['gradual', 'asta-sekin'], ['sudden', 'to’satdan ro’y bergan'],
+    ['suddenly', 'to’satdan'], ['keen', 'juda qiziqadigan, ishqiboz'], ['uninterested', 'qiziqishsiz'], ['fortunate', 'omadli, baxtli'], ['fortunately', 'baxtga ko’ra'],
+    ['unfortunate', 'omadsiz, baxtsiz'], ['unfortunately', 'afsuski'], ['trouble', 'muammo, qiyinchilik'], ['flow', 'oqmoq, oqim'], ['native', 'mahalliy, shu yerli'],
+    ['he is native Kokand', 'u qo’qonlik'], ['border', 'chegara'], ['island', 'orol'], ['continent', 'materik'], ['bazouki', 'grek musiqa asbobi'],
+    ['jew', 'yahudiy'], ['hitler', 'gitler'], ['fjords', 'ko’rfaz'], ['a ball of string', 'bir to’p arqon'], ['string', 'arqon, chilvir'],
+    ['a bunch of grapes', 'bir shingil uzum'], ['bunch', 'dasta, tutam'], ['an ear of corn', 'bir boshoq bug’doy'], ['ear', 'boshoq, so’ta'], ['a cube of sugar', 'bir bo’lak qand'],
+    ['a pack of cards', 'bir pachka karta'], ['pack', 'paket, pachka'], ['a crate of beer', 'bir yashik vino'], ['crate', 'yashik'], ['a pad of writing paper', 'bir bloknot yozuv qog’ozi'],
+    ['a bar of chocolate', 'bir bo’lak shokolad'], ['a punnet of strawberries', 'bir savat qulupnay'], ['a string of beads', 'bir tizim marjon'], ['bead', 'dur, marjon'], ['a bouquet of flowers', 'bir dasta gullar'],
+    ['bouquet', 'dasta, guldasta'], ['boutique', 'butik, do’kon'], ['a quiver of arrows', 'bir o’qdon kamon o’qi'], ['quiver', 'titramoq, o’qdon'], ['quiver with fear', 'qo’rquvdan titramoq'],
+    ['chop', 'to’g’ramoq'], ['chopping board', 'taxtakach'], ['aerial', 'antenna'], ['banister', 'zinapoya panjarasi'], ['curtains', 'pardalar'],
+    ['door handle', 'eshik tutqichi'], ['doorbell', 'qo’ng’iroq'], ['coffee filter', 'kofe filtrlagich'], ['pillow', 'yostiq (bosh uchun)'], ['cushion', 'yostiqcha (suyanadigan)'],
+    ['dustbin', 'axlat qutisi'], ['dustpan', 'axlat kuragi'], ['spatula', 'shpatel'], ['bed', 'krovat, yotoq'], ['board', 'taxta, bort'],
+    ['be called', 'ataladi, nomlanadi'], ['sleeper', 'uyquchi'], ['cabin', 'kayuta, kabina'], ['bunk', 'ikki qavatli krovat'], ['dormitory', 'yotoqxona'],
+    ['only', 'faqat, yakka, yagona'], ['only child', 'yagona farzand'], ['sole', 'yagona, yolg’iz'], ['unique', 'mislsiz, tanho'], ['single', 'bitta, bo’ydoq'],
+    ['terribly', 'juda, rosa'], ['seem', 'tuyulmoq, ko’rinmoq'], ['leave', 'qoldirmoq, unutib ketmoq'], ['get off', 'ishdan ruxsat olmoq'], ['get together', 'yig’ilmoq'],
+    ['get on', 'chiqishmoq'], ['get by', 'zo’rg’a hayot kechirmoq'], ['grow up', 'voyaga yetmoq'], ['foster', 'boqib olmoq'], ['foster child', 'asrandi bola']
+],
+
+[
+    ['foster parent', 'bola asrab olgan ota-ona'], ['bring up', 'tarbiyalamoq'], ['develop', 'rivojlanmoq'], ['find', 'hisoblamoq, deb bilmoq'], ['regret', 'afsusda bo’lmoq'],
+    ['pity', 'achinish, rahmi kelmoq'], ['inform', 'xabar qilmoq'], ['informant', 'xabarchi'], ['support', 'qo’llab-quvvatlamoq'], ['supply', 'ta’minlamoq'],
+    ['sale', 'savdo-sotiq'], ['bargain', 'savdolashmoq, bitim'], ['lonely', 'yolg’iz'], ['spare', 'ortiqcha'], ['unused', 'ishlatilmagan'],
+    ['bet', 'garovga pul tikmoq'], ['beat', 'yutmoq, g’olib bo’lmoq'], ['place', 'joy, o’rindiq'], ['sail', 'suzmoq'], ['look after', 'g’amxo’rlik qilmoq'],
+    ['look out', 'ehtiyot bo’lmoq'], ['cashier', 'kassir'], ['caddie', 'golf bo’yicha maslahatchi'], ['caretaker', 'bino nazoratchisi'], ['solicitor', 'advokat'],
+    ['porter', 'yuk tashuvchi'], ['perform', 'ijro etmoq'], ['surgeon', 'jarroh'], ['chauffeur', 'shofyor'], ['employ', 'ishga yollamoq'],
+    ['speech therapist', 'logoped'], ['crop', 'hosil'], ['overcome', 'yengmoq'], ['missing', 'yo’qolgan'], ['ward', 'palata'],
+    ['roof', 'tom'], ['crew', 'ekipaj'], ['study', 'kabinet'], ['goods', 'tovar, yuk'], ['store', 'ombor, saqlamoq'],
+    ['crypt', 'sag’ana, daxma'], ['hold', 'yukxona (kema)'], ['stored', 'saqlangan'], ['be stored', 'saqlanmoq'], ['larder', 'omborxona'],
+    ['parlour', 'mehmonxona'], ['studio', 'studiya'], ['lounge', 'dam olish xonasi'], ['treat', 'davolamoq, muomala qilmoq'], ['treatment', 'muolaja'],
+    ['treatment stay', 'muolaja xonasi'], ['boarding school', 'maktab-internat'], ['plane', 'randa, samolyot'], ['file', 'egov, saf tortmoq'], ['axe', 'bolta'],
+    ['pliers', 'ombir'], ['extension cable', 'kabel uzatma'], ['jack', 'domkrat'], ['secateurs', 'temir qaychi'], ['watering can', 'gul chelak'],
+    ['sickle', 'o’roq'], ['vice', 'qisqich dastgoh'], ['fire extinguisher', 'o’t o’chirgich'], ['chisel', 'iskana'], ['detest /hate/loathe', 'juda yomon ko’rmoq'],
+    ['inform / notify', 'ma’lum qilmoq'], ['go in / enter', 'kirmoq'], ['brag / boast', 'maqtanmoq'], ['purchase / buy', 'xarid qilmoq'], ['antique', 'tarixiy, antikvar'],
+    ['dealer', 'diller, dallol'], ['accomplish / achieve', 'erishmoq'], ['moan / complain', 'shikoyat qilmoq'], ['vanish / disappear', 'g’oyib bo’lmoq'], ['spoil / ruin / destroy / demolish', 'vayron qilmoq'],
+    ['put off / postpone', 'kechiktirmoq'], ['recollect / remember', 'eslamoq'], ['scare / frighten', 'qo’rqitmoq'], ['trip / stumble', 'qoqilmoq'], ['manuscript', 'qo’lyozma'],
+    ['alter / change', 'o’zgartirmoq'], ['occur / happen', 'sodir bo’lmoq'], ['surround', 'o’rab olmoq'], ['feet', 'fut'], ['coffin', 'tobut'],
+    ['undertaker', 'go’rkov'], ['undertaker \'s', 'tobutxona'], ['divide', 'bo’lmoq'], ['association', 'birlashma'], ['clutch', 'mahkam ushlamoq'],
+    ['motorway', 'avtomobil yo’li'], ['referee', 'hakam'], ['leeds', 'futbol klubi'], ['percussion', 'urib chalinadigan musiqa asbobi'], ['symphony', 'simfoniya'],
+    ['conductor', 'dirijyor'], ['violin', 'skripka'], ['petal', 'gulbarg'], ['stem', 'poya'], ['collar', 'yoqa']
+],
+
+[
+    ['bark', 'akillamoq, daraxt po’stlog’i'], ['ring', 'uzuk, qo’ng’iroq chalmoq'], ['fret', 'xavotirlanmoq'], ['chord', 'akkord'], ['snore', 'xurrak otmoq'],
+    ['mattress', 'matras, to’shak'], ['telescope', 'teleskop'], ['venus', 'venera sayyorasi'], ['galaxy', 'galaktika'], ['waveband', 'diapazon'],
+    ['transistor', 'tranzistor'], ['tuner', 'sozlovchi qurilma'], ['ribbon', 'lenta'], ['key', 'klavish, knopka'], ['landlord / landlady', 'ijaraga beruvchi'],
+    ['darts', 'drotik o’yini'], ['dart', 'nayza, yeldek yugurmoq'], ['umpire', 'hakamlik qilmoq'], ['court', 'tennis korti, sud'], ['set', 'partiya (o’yin)'],
+    ['estuary', 'daryo quyilish joyi'], ['bank', 'qirg’oq'], ['flow', 'oqmoq, oqim'], ['lace', 'tufli ipi'], ['heel', 'tovon, poshna'],
+    ['matron', 'bosh hamshira'], ['ward', 'shifoxona bo’limi'], ['crotch', 'chot, ayri'], ['crotchet', 'choraktalik nota'], ['compose', 'ijod qilmoq'],
+    ['treble', 'uch barobar kattalashtirmoq'], ['clef', 'kalit (musiqa)'], ['treble clef', 'skripka kaliti'], ['classical', 'mumtoz'], ['fitting', 'anjom'],
+    ['stove / cooker', 'gaz plita, pech'], ['washing machine', 'kir yuvish mashinasi'], ['coffee table', 'kofe stoli'], ['bedside table', 'yotoq yonidagi stol'], ['shower', 'dush'],
+    ['bath', 'vanna'], ['wardrobe', 'shkaf'], ['broom cupboard', 'tozalov anjomlari shkafi'], ['fluorescent light', 'fluoressent chiroq'], ['oil lamp', 'moy chiroq'],
+    ['ceiling light', 'shift chiroq'], ['vessel', 'kema'], ['stiff', 'bukilmaydigan'], ['conscience', 'vijdon'], ['retail', 'chakana savdo'],
+    ['fascination', 'o’ziga tortish'], ['fascinate', 'maftun qilmoq'], ['pride', 'faxrlanmoq'], ['controversial', 'bahsli'], ['mammoth', 'ulkan'],
+    ['dimension', 'o’lcham, hajm'], ['delicate', 'nozik, nafis'], ['contagious', 'yuqumli'], ['rein', 'jilov'], ['agitate', 'tashviqot'],
+    ['vigorous', 'baquvvat'], ['kith and kin', 'qarindosh-urug’lar'], ['appliance', 'jihoz'], ['disseminate', 'tatbiq etmoq'], ['dissemination', 'tarqatish'],
+    ['immature', 'norasta'], ['intelligent', 'zukko, o’qimishli'], ['mood', 'kayfiyat'], ['moody', 'o’zgaruvchan kayfiyatli'], ['sulk', 'qovog’ini osiltirmoq'],
+    ['sympathetic', 'hamdard'], ['swear', 'qasam ichmoq'], ['ambitious', 'xayolparast'], ['strict', 'qattiqqo’l'], ['eccentric', 'g’ayrioddiy (inson)'],
+    ['no matter', 'farqi yo’q'], ['no matter what', 'nima bo’lganda ham'], ['cape', 'plash'], ['matching', 'mos tushadigan'], ['match', 'moslamoq'],
+    ['my point of view', 'nuqtayi nazarim'], ['pastime', 'ermak'], ['hobby', 'sevimli mashg’ulot'], ['activity', 'faoliyat'], ['relaxing', 'tinchlantiruvchi'],
+    ['relax', 'hordiq chiqarmoq'], ['orienteering', 'oriyentirlash'], ['land', 'quruqlik'], ['knitting', 'to’qish'], ['ancient', 'qadimiy'],
+    ['dig', 'qazimoq'], ['archaeology', 'arxeologiya'], ['weave', 'to’qimoq'], ['weaving', 'to’qish'], ['loom', 'to’qish dastgohi'],
+    ['camp', 'palatka tiklamoq'], ['camping', 'oromgohda dam olish'], ['creative', 'ijodiy'], ['create', 'yaratmoq'], ['paint', 'bo’yamoq']
+],
+
+[
+    ['painting', 'chizish, rassomchilik'], ['whether', 'yoki, yohud'], ['photography', 'surat olish'], ['mainly', 'asosan'], ['wool', 'jun'],
+    ['nylon', 'neylon'], ['embroider', 'bezamoq'], ['embroidery', 'bezak berish'], ['close', 'yaqin'], ['glide', 'uchish (qushga o’xshab)'],
+    ['gliding', 'aeroplan sporti'], ['investment', 'sarmoya, investitsiya'], ['stamp collecting', 'marka yig’ish'], ['fit', 'sog’lom, tetik'], ['cooking/cookery', 'pazandalik'],
+    ['ramba / samba', 'raqs turi'], ['acting', 'rol o’ynash'], ['fancy', 'xayol, xohlamoq'], ['tile', 'cherepitsa, kafel'], ['mah-jong', 'xitoyliklar o’yini'],
+    ['clay', 'gil, loy'], ['miss out', 'tushirib qoldirmoq'], ['disappoint in', 'ranjimoq'], ['difficulty in', 'qiyinchilik tug’dirmoq'], ['conscious / aware of', 'anglaydigan, ogoh'],
+    ['for ages', 'anchadan beri'], ['tired of', 'zerikmoq'], ['among', 'orasida'], ['wait on smb', 'xizmat ko’rsatmoq'], ['look up', 'lug’atdan topmoq'],
+    ['look through', 'ko’z yugurtirmoq'], ['shave', 'soqol olmoq'], ['shaving socket', 'razetka'], ['record storage unit', 'hujjatlar javoni'], ['time switch', 'budilnikli soat'],
+    ['window sill', 'deraza tokchasi'], ['fan heater', 'isitgich'], ['trolley', 'aravacha'], ['room divider', 'stenka'], ['door knob', 'eshik tutqichi'],
+    ['extractor fan', 'havo haydaydigan qurilma'], ['curtain rail', 'karniz'], ['coat stand', 'tik turadigan vishilka'], ['window box', 'oyna qutisi'], ['pig grunts', 'cho’chqa hurillashi'],
+    ['dog barks', 'vovullamoq'], ['mouse squeaks', 'sichqon chiyillashi'], ['cock crows', 'xo’roz qichqirishi'], ['frog croaks', 'baqa vaqqillashi'], ['elephant trumpets', 'fil ovozi'],
+    ['horse neighs', 'ot kishnashi'], ['lamb bleats', 'qo’zichoq ma’rashi'], ['lion roars', 'sher o’kirishi'], ['cow lows', 'sigir mo’lashi'], ['container', 'idish, konteyner'],
+    ['crockery', 'idish-tovoq (fayans)'], ['willow', 'tol'], ['lizard', 'kaltakesak'], ['radish', 'rediska'], ['reptile', 'sudralib yuruvchi'],
+    ['gutter', 'tarnov'], ['misprint', 'nashr xatosi'], ['extract', 'parcha, sug’urib olmoq'], ['following', 'quyidagi'], ['rug/carpet', 'palos'],
+    ['clap', 'qarsak chalmoq'], ['cheer', 'qichqirmoq, sevinmoq'], ['route', 'yo’nalish'], ['fiancée', 'unashtirilgan qiz'], ['fiancé', 'unashtirilgan bola'],
+    ['artificial', 'sun’iy'], ['drugs', 'dori-darmon'], ['crowd', 'olomon'], ['crow', 'qarg’a, maqtanmoq'], ['wire', 'sim'],
+    ['wiring', 'elektr tarmog’i'], ['daring', 'jasoratli'], ['darling', 'sevimli, mahbuba'], ['wish', 'tilak, orzu'], ['injury', 'jarohat'],
+    ['injury time', 'qo’shimcha vaqt'], ['injure', 'jarohatlanmoq'], ['bust', 'byust, sindirmoq'], ['publish', 'chop etmoq'], ['publishing', 'nashriyot'],
+    ['previous', 'oldingi'], ['experience', 'tajriba'], ['essential', 'zaruriy'], ['type', 'yozmoq (termoq)'], ['typing', 'yozish jarayoni'],
+    ['typewriter', 'yozuv mashinasi'], ['request', 'so’ramoq, iltimos'], ['require', 'ehtiyoj sezmoq'], ['owner', 'sohib'], ['mileage', 'bosib o’tilgan masofa'],
+    ['claim', 'da’vo qilmoq'], ['ghost/spectre', 'arvoh'], ['property', 'mulk'], ['properly', 'yaxshilab'], ['corner', 'burchakka qisib qo’ymoq']
+],
+
+[
+    ['amount', 'miqdor'], ['fry', 'qovurmoq'], ['meatball', 'bir to’p maydalangan go’sht'], ['bow tie', 'babichka (galstuk)'], ['bowler hat', 'erkaklar shlyapasi'],
+    ['beret', 'beret'], ['cardigan', 'jilet, nimcha'], ['sweater', 'sviter'], ['apron', 'fartuk'], ['gloves', 'qo’lqop (barmoqli)'],
+    ['mitten', 'qo’lqop (bosh barmoqli)'], ['braces', 'shim tasmasi'], ['clogs', 'taxta tagli oyoq kiyimi'], ['shorts', 'shortik'], ['sandals', 'shippak'],
+    ['string vest', 'setkali mayka'], ['unless', 'agar bo’lmasa'], ['get well', 'tuzalmoq'], ['increase', 'o’smoq'], ['improve', 'yaxshilamoq'],
+    ['get back', 'qaytib kelmoq'], ['end', 'tugamoq'], ['complete', 'to’ldirmoq'], ['slave', 'qul'], ['possibility', 'ehtimollik'],
+    ['opportunity', 'imkoniyat'], ['chance', 'imkoniyat'], ['scene', 'manzara, joy'], ['countryside', 'qishloq'], ['cruel', 'shafqatsiz'],
+    ['bossy', 'hukmronlik qiladigan'], ['helpful', 'yordam beradigan'], ['charming', 'maftunkor'], ['disturbed', 'bezovta'], ['ashamed', 'uyatchan'],
+    ['full up', 'to’ygan'], ['full stop', 'nuqta'], ['thoroughly', 'butunlay, to’liq'], ['spoilt', 'erka, taltaygan'], ['spoil', 'buzmoq (erkatoy qilmoq)'],
+    ['feel like', 'xohlamoq'], ['even though', 'hattoki'], ['give in', 'taslim bo’lmoq'], ['give up', 'tashlamoq'], ['give over', 'uzatib bermoq'],
+    ['ambitious', 'orzuga beriluvchan'], ['industrial', 'sanoatga oid'], ['punctual', 'o’z vaqtida bajaradigan'], ['timeless', 'o’zgarmaydigan'], ['classic', 'tipik, klassika'],
+    ['classical', 'mumtoz'], ['grateful', 'minnatdor'], ['glad', 'mamnun'], ['pleased', 'xursand'], ['in debt', 'qarzdor'],
+    ['not at all', 'arzimaydi'], ['no, not just now, thanks', 'yo’q, hozir emas'], ['fancy', 'xohlamoq'], ['fun', 'o’yin-kulgi'], ['far', 'uzoq'],
+    ['no, not very', 'yo’q, unchalik emas'], ['what is ... like?', 'qanday?'], ['what was party like?', 'kecha qanday edi?'], ['yes, that would be nice', 'ha, yaxshi bo’lardi'], ['yes, very funny', 'ha, juda kulgili'],
+    ['phrase', 'ifoda, ibora'], ['that’s rubbish', 'safsata'], ['rubbish', 'axlat'], ['turn up', 'yetib kelmoq'], ['about a month ago', 'taxminan 1 oy oldin'],
+    ['comprehensive', 'keng qamrovli'], ['comprehend', 'tushunmoq'], ['divorce', 'ajralmoq'], ['anyway/anyhow', 'nima bo’lganda ham'], ['that’s all right', 'hammasi joyida'],
+    ['surprise', 'kutilmagan voqea'], ['blessing', 'baxt, boylik'], ['suppose', 'taxmin qilmoq'], ['equipment', 'jihoz, uskuna'], ['dartboard', 'drotik nishoni'],
+    ['tennis racquet', 'tennis raketkasi'], ['badminton racquet', 'badminton raketkasi'], ['air pistol', 'havo pistoleti'], ['golf club', 'golf tayog’i'], ['tent', 'chodir'],
+    ['chess set', 'shaxmat to’plami'], ['dice', 'shashqol'], ['figure skate', 'konki'], ['ski stick', 'chang’i tayog’i'], ['shin pad', 'oyoq qalqoni'],
+    ['dumbbell', 'gantel'], ['shuttlecock', 'volan'], ['binoculars', 'durbin'], ['ice hockey stick', 'xokkey tayog’i'], ['aisle', 'yo’lak'],
+    ['altar', 'mehrob'], ['boot', 'etik, yukxona'], ['bumper', 'bamper'], ['alter', 'o’zgartirmoq'], ['clutch', 'stsepleniye'],
+    ['collar', 'yoqa']
+],
+
+[
+    ['gather', 'to’plamoq'], ['congregation', 'jamoat (ibodatdagi)'], ['crew', 'ekipaj, komanda'], ['cutlery', 'vilka-qoshiq'], ['date stamp', 'sana muhri'],
+    ['desk', 'parta, yozuv stoli'], ['deck', 'paluba'], ['filing cabinet', 'fayl shkafi'], ['cabinet', 'kichkina shkaf'], ['filing', 'qirindi'],
+    ['funnel', 'voronka'], ['horn', 'signal, shox'], ['lapel', 'qaytarma yoqa'], ['matron', 'bosh hamshira'], ['operating theatre', 'operatsiya xonasi'],
+    ['pew', 'cherkovdagi skameyka'], ['pocket', 'cho’ntak'], ['portholes', 'illyuminator'], ['pulpit', 'yepiskop minbari'], ['rail', 'ilgak'],
+    ['seatbelt', 'xavfsizlik kamari'], ['unit', 'qism, birlik'], ['sleeve', 'yeng'], ['staffroom', 'xodimlar xonasi'], ['ward', 'palata'],
+    ['skylight', 'darcha'], ['porch / veranda', 'ayvon'], ['steak', 'bishteks'], ['suspicious', 'shubhali'], ['paperclip', 'skripka'],
+    ['drawing pin / thumb-tack', 'knopka, tugmacha'], ['safety pin', 'xavfsizlik to’g’nagichi'], ['nail', 'mix'], ['spectacles / glasses', 'ko’zoynak'], ['spectacle', 'tomosha'],
+    ['cheek', 'yuz, lunj'], ['clean', 'toza'], ['broke', 'pulsiz'], ['clean-shaven', 'soqol-mo’ylovsiz'], ['certain', 'aniq'],
+    ['exhaust', 'holdan toymoq'], ['impolite', 'qo’pol'], ['courteous', 'hushmuomila'], ['flat sole', 'yassioyoq'], ['flighty', 'o’zgaruvchan'],
+    ['conscience', 'vijdon'], ['industrious / hard-working', 'mehnatkash'], ['dummy', 'maneken'], ['toy', 'o’yinchoq'], ['puppet', 'qo’g’irchoq'],
+    ['docker', 'bandargoh ishchisi'], ['puppet', 'ipli qo’g’irchoq'], ['sea-shore', 'dengiz qirg’og’i'], ['liner', 'layner (kema)'], ['horizon', 'ufq'],
+    ['headland', 'quruqlik burni'], ['buoy', 'buy, baken'], ['wave', 'to’lqin'], ['disaster', 'ofat'], ['cliff', 'qoya'],
+    ['cave', 'g’or'], ['rock', 'qoyatosh, tebratmoq'], ['shingle', 'shag’al'], ['lifebuoy', 'qutqaruv baloni'], ['keen on', 'qiziquvchan'],
+    ['fond of', 'ishqiboz'], ['engaged to', 'unashtirilgan'], ['exception', 'istisno'], ['rule', 'tartib-qoida'], ['authority', 'vakolat, hokimiyat'],
+    ['equal', 'teng, barobar'], ['completely', 'butunlay'], ['stay at', 'da qolmoq'], ['stay in', 'uyda qolmoq'], ['stay on', 'davom ettirmoq'],
+    ['wipe', 'artmoq'], ['windscreen wipers', 'oyna artgich'], ['windscreen', 'old oyna'], ['headlight', 'fara'], ['grill', 'qo’ra'],
+    ['radiator grill', 'radiator panjarasi'], ['exhaust pipe', 'glushitel'], ['driving mirrors', 'yon va orqani ko’radigan oynalar'], ['bumper', 'bamper'], ['hood', 'kapshonka'],
+    ['hood/bonnet', 'old kapot'], ['boot', 'orqa kapot, etik'], ['tyre', 'balon, shina'], ['seatbelt', 'kamar'], ['indicator', 'pavorot chiroqchasi'],
+    ['steering wheel', 'ro’l'], ['speedometer', 'spidometr'], ['foot brake', 'oyoq tormozi'], ['glove compartment', 'bardachok'], ['compartment', 'kupe'],
+    ['hand brake', 'ruchnoy tormoz'], ['petrol gauge', 'benzin o’lchovi'], ['accelerator pedal', 'gaz pedali'], ['gear stick', 'skorost (uzatmalar dastagi)']
+],
+
+[
+    ['clutch', 'stsepleniya'], ['horn', 'signal, shox'], ['oar/paddle', 'eshkak'], ['roar', 'o’kirish'], ['straight lines', 'tekis chiziq'],
+    ['ruler', 'chizg’ich'], ['street car/tram', 'tramvay'], ['ram', 'qo’chqor'], ['shave', 'qirmoq, soqol olmoq'], ['sap', 'sharbat, shira'],
+    ['soap', 'sovun'], ['canvas', 'brezent'], ['ease', 'qulaylik, osonlik'], ['easel', 'ko’rgazma stendi'], ['rave', 'jahl qilib gapirish, maqtash'],
+    ['brave', 'mard, jasur'], ['supernatural', 'g’ayritabiiy'], ['itch', 'qichish'], ['witch', 'yalmog’iz kampir'], ['troll', 'troll'],
+    ['stroll', 'sayr'], ['sore', 'og’rigan, kasal'], ['store', 'do’kon (AQSH)'], ['seal', 'tyulen, muhr'], ['steal', 'o’g’irlamoq'],
+    ['harp', 'arfa'], ['sharp', 'o’tkir'], ['blunt', 'o’tmas, qo’pol'], ['weary', 'juda charchagan'], ['flame', 'alanga'],
+    ['false alarm', 'soxta signal'], ['false', 'noto’g’ri, sun’iy'], ['turning', 'burilish'], ['scream', 'baqirmoq'], ['acoustics', 'akustika'],
+    ['pardon', 'kechirasiz'], ['tin', 'konserva'], ['tiny', 'juda kichkina'], ['ale / beer', 'pivo'], ['lame', 'oqsoq'],
+    ['hose', 'shlang'], ['caption', 'izoh'], ['loser', 'mag’lub'], ['replace', 'joyiga qo’ymoq'], ['irreplaceable', 'tengi yo’q'],
+    ['guinea-pig', 'dengiz cho’chqasi'], ['publisher', 'nashriyotchi'], ['published', 'nashr qilingan'], ['annually', 'har yili'], ['annual', 'bir yillik'],
+    ['guinness', 'Ginnes'], ['whisper', 'shivirlamoq'], ['niece', 'qiz bola jiyan'], ['performance', 'spektakl'], ['applaud', 'olqishlamoq'],
+    ['make smb do', 'undamoq'], ['totally', 'butkul'], ['worn-out', 'eskirgan'], ['exhausted', 'horg’in'], ['hypocrites', 'ikkiyuzlamachi'],
+    ['hypocrisy', 'ikkiyuzlamachilik'], ['pretend', 'mug’ombirlik qilmoq'], ['delay', 'kechiktirish'], ['whatsoever', 'umuman'], ['immediately', 'darhol'],
+    ['exhausting', 'charchatadigan'], ['manage', 'uddalay olmoq'], ['hood/bonnet', 'kapot'], ['license plate/number plate', 'avtomobil raqami'], ['stand in line/queue', 'navbat'],
+    ['pop down', 'chiqarmoq (pul tugashi/chiqib kelish)'], ['liquor store/off-licence', 'spirtli ichimliklar do’koni'], ['one-way/single', 'bir tomonga'], ['pacifier/dummy', 'so’rg’ich'], ['wash up/wash', 'yuvmoq'],
+    ['faucet/tap', 'jo’mrak'], ['run', 'oqmoq'], ['restroom/public convenience', 'jamoat hojatxonasi'], ['deck/pack', 'karta to’plami'], ['puzzle', 'boshqotirma'],
+    ['puzzle over sth', 'bosh qotirmoq'], ['puzzle sth out', 'yechimini topmoq'], ['fair', 'oqmalla, sarg’ish'], ['stripe', 'taram-taram chiziq'], ['striped', 'chiziqli'],
+    ['priest', 'ruhoniy'], ['blonde hair', 'oq-sariq soch'], ['beard', 'soqol'], {'buzz cut': "tepa kal"}, {'besides': "dan tashqari"},
+    ['lent', 'qarz bergan'], ['borrow', 'qarzga olmoq'], ['rubber', 'o’chirg’ich'], ['as though', 'xuddi'], ['fun', 'qiziq'],
+    ['flat', 'havosiz, dim'], ['uninspiring', 'zerikarli'], ['confusing', 'chalkash'], ['confuse', 'dovdiratib qo’ymoq']
+],
+
+[
+    ['wreckage', 'vayrona, xaroba qoldiqlari'], ['raise', 'ko’tarmoq'], ['indeed', 'haqiqatdan ham'], ['landscape', 'landshaft, manzara'], ['county', 'graflik'],
+    ['make the bed', 'o’rnini yig’ishtirmoq'], ['channel', 'telekanal'], ['canal', 'kanal'], ['spare', 'bermoq, ajratmoq'], ['control', 'boshqarmoq'],
+    ['figure', 'raqam, miqdor'], ['rent', 'ijara haqi'], ['rent / hire', 'ijaraga olmoq/bermoq'], ['couple', 'juftlik'], ['fetch', 'olib kelmoq'],
+    ['recipe', 'retsept'], ['receipt', 'kvitansiya'], ['remember', 'eslamoq'], ['remind', 'eslatmoq'], ['appointment', 'uchrashuv'],
+    ['apart from', 'dan tashqari'], ['record /  disc', 'audio disk, plastinka'], ['conduct', 'xulq-atvor, dirijyorlik qilmoq'], ['direct', 'boshqarmoq, to’g’ri'], ['producer', 'rejissyor'],
+    ['grand', 'hashamatli'], ['wing', 'qanot'], ['suite', 'mebel garnituri, lyuks xona'], ['match', 'mos, munosib'], ['altogether', 'hammasi, umuman'],
+    ['lend', 'qarz bermoq'], ['borrow', 'qarz olmoq'], ['vanish', 'g’oyib bo’lmoq'], ['appear', 'paydo bo’lmoq'], ['hurry', 'shoshmoq'],
+    ['take one’s time', 'vaqtini olmoq'], ['detest', 'juda yomon ko’rmoq'], ['adore', 'qattiq sevmoq'], ['insult', 'haqoratlamoq'], ['praise', 'maqtamoq'],
+    ['purchase/buy', 'sotib olmoq'], ['depart/leave', 'tark etmoq'], ['increase', 'o’smoq'], ['decrease', 'kamaymoq'], ['attack', 'hujum qilmoq'],
+    ['defend', 'himoya qilmoq'], ['encourage', 'ruhlantirmoq'], ['discourage', 'umidsizlantirmoq'], ['expand', 'kengaytirmoq'], ['contract', 'qisqartirmoq'],
+    ['improve', 'yaxshilamoq'], ['get worse/deteriorate', 'yomonlashmoq'], ['punish', 'jazolamoq'], ['reward', 'mukofotlamoq'], ['support', 'qo’llab-quvvatlamoq'],
+    ['oppose', 'qarshi chiqmoq'], ['date', 'xurmo, uchrashuv'], ['judaism', 'yahudiylik'], ['buddhism', 'buddizm'], ['christianity', 'xristianlik'],
+    ['religion', 'din'], ['cathedral', 'bosh cherkov'], ['nationality', 'millat'], ['dutch', 'niderlandiyalik'], ['swiss', 'shveysariyalik'],
+    ['welsh', 'uelslik'], ['polo', 'chavgon o’yini'], ['enthusiastically', 'ishtiyoq bilan'], ['enthusiastic', 'zavqqa to’la'], ['weapon', 'qurol'],
+    ['bow and arrow', 'kamon va o’q'], ['dagger', 'xanjar'], ['hand grenade', 'qo’l granatasi'], ['machine gun', 'pulemyot'], ['gaelic', 'gal tili'],
+    ['hebrew', 'yahudiy tili'], ['yiddish', 'yevrey tili'], ['leek', 'ko’kpiyoz'], ['brussels sprouts', 'brussel karami'], ['turnip', 'sholg’om'],
+    ['spinach', 'ismaloq'], ['mallet', 'yog’och bolg’a'], ['plane', 'randa'], ['weight', 'og’irlik'], ['weightlifting', 'tosh ko’tarish'],
+    ['pound', 'funt'], ['ounces', 'unsiya'], ['fabric', 'mato'], ['corduroy', 'chiyduxoba'], ['satin', 'atlas'],
+    ['crinoline', 'bekamu'], ['jewellery', 'zargarlik buyumlari'], ['earring', 'zirak'], ['locket', 'medalyon'], ['gravy', 'sous'],
+    ['necklace', 'marjon'], ['herb', 'ko’kat, o’t']
+],
+
+[
+    ['root', 'ildiz, tomir'], ['arrowroot', 'otsu o’simligi'], ['chicory', 'sachratqi'], ['parsley', 'petrushka, kashnich'], ['sage', 'mavrak (o’t)'],
+    ['smallpox', 'chechak'], ['mumps', 'tepki'], ['measles', 'qizamiq'], ['bronchitis', 'bronxit'], ['minuet', 'minuet (raqs)'],
+    ['tango', 'tango (raqs)'], ['jive', 'jive (raqs)'], ['polka', 'polka (raqs)'], ['convenience', 'qulaylik'], ['peanuts', 'yeryong’oq'],
+    ['crime', 'jinoyat'], ['criminal', 'jinoiy'], ['arson', 'o’t qo’yish'], ['theft', 'o’g’irlik'], ['rape', 'zo’rlash'],
+    ['fraud', 'firibgarlik'], ['sedan/saloon', 'avtomobil saloni'], ['saloon car', 'yengil mashina'], ['trailer/caravan', 'furgon'], ['van', 'furgon'],
+    ['hovercraft', 'atrofi balonli kema'], ['submarine', 'suv osti kemasi'], ['estate car', 'yuk tashuvchi yengil mashina'], ['articulated lorry', 'fura'], ['sports car', 'sport avtomobili'],
+    ['tanker', 'tanker, sisterna'], ['transporter', 'avtotransport yuk mashinasi'], ['bike/cycle', 'velosiped'], ['motorbike / motorcycle', 'mototsikl'], ['yacht', 'yaxta'],
+    ['coach', 'turistik avtobus'], ['truck / lorry', 'yuk mashinasi'], ['barge', 'barja, kater'], ['ambulance', 'tez yordam'], ['canoe', 'kanoe, baydarka'],
+    ['tram', 'tramvay'], ['complete', 'to’liq / to’ldirmoq'], ['describe', 'tasvirlamoq'], ['insane/mad', 'tentak, jinni'], ['dependable / reliable', 'ishonchli'],
+    ['considerate', 'e’tiborli, muloyim'], ['likeable / amiable', 'yoqimli'], ['aware / conscious', 'xabardor'], ['childish / immature', 'bolalarcha'], ['mean', 'nazarda tutmoq'],
+    ['deliberate', 'muhokama qilmoq'], ['deliberate / intentional', 'qasddan qilingan'], ['absolutely', 'mutlaqo'], ['disgusting / disgraceful', 'jirkanchli, sharmanda'], ['dizzy / giddy', 'boshi aylanadigan'],
+    ['mean / stingy', 'xasis, baxil'], ['really hungry / famished', 'juda och'], ['ridiculous / absurd', 'be’mani, bo’lmag’ur'], ['talkative / chatty', 'sergap'], ['thoughtful / pensive', 'o’ychan, xayolchan'],
+    ['pathetic / hopeless', 'uquvsiz, no’noq'], ['pathetic', 'yurakni ezadigan'], ['peculiar / weird', 'g’alati'], ['stage', 'bosqich'], ['heat', 'issiqlik'],
+    ['seal', 'tyulen'], ['bell', 'qo’ng’iroq'], ['slide', 'sirpanmoq'], ['fasten', 'berkitmoq'], ['bolt', 'bolt, surma'],
+    ['colt', 'toychoq'], ['hot water bottle', 'grevka'], ['dummy', 'chaqaloq so’rg’ichi'], ['handbag', 'ayollar sumkasi'], ['hamper', 'savat'],
+    ['nutcrackers', 'yong’oq chaqgich'], ['clothes rack', 'vishalka'], ['hinge', 'oshiq-moshiq'], ['thimble', 'angishvona'], ['curler', 'bigudi'],
+    ['curl', 'gajak soch'], ['curly', 'jingalak'], ['razor', 'ustara'], ['razor blade', 'lezviya'], ['tweezers', 'pinset'],
+    ['billfold/wallet', 'hamyon'], ['purse', 'karmon (ayollar)'], ['rawlplug', 'samarez'], ['jackplug', 'ulash vilkasi'], ['raw', 'xom'],
+    ['booklet', 'risola, kitobcha'], ['catalogue', 'katalog'], ['position', 'o’rin, joy'], ['afford', 'imkoniyatga ega bo’lmoq'], ['can’t afford', 'yo’l qo’ya olmaslik'],
+    ['dealing', 'taqsimlash'], ['set', 'komplekt'], ['branch', 'bo’lim, filial']
+],
+
+[
+    ['alphabetical', 'alifboga oid'], ['collection', 'to’plam'], ['autograph', 'dastxat'], ['personal', 'shaxsiy'], ['event', 'voqea'],
+    ['record', 'yozib qo’ymoq'], ['mention', 'eslatib o’tmoq'], ['mentioned', 'aytib o’tilgan'], ['manual', 'qo’llanma'], ['directory', 'ma’lumotnoma'],
+    ['index', 'ko’rsatkich'], ['diary', 'kundalik'], ['particular', 'ma’lum bir'], ['dish', 'taom'], ['log', 'bort jurnali, xoda'],
+    ['cookery book/cookbook', 'pazandalik kitobi'], ['captain', 'kapitan'], ['fill', 'to’ldirmoq'], ['attend', 'qatnashmoq'], ['register', 'ro’yxatga olmoq'],
+    ['consult', 'maslahatlashmoq'], ['time-table', 'jadval'], ['brochure', 'broshura'], ['travel agency', 'sayohat agentligi'], ['fill in', 'yozib to’ldirmoq'],
+    ['inspire', 'ilhomlantirmoq'], ['inspiring', 'ilhomlantiruvchi'], ['cot', 'bolalar krovati'], ['creep', 'emaklamoq'], ['barn', 'omborxona'],
+    ['denture', 'sun’iy tish'], ['bore', 'zeriktirmoq'], ['law court', 'sud zali'], ['dumb', 'soqov'], ['sentence', 'sud hukmi'],
+    ['wall', 'devor'], ['sing', 'kuylamoq'], ['judge', 'sudya'], ['sew', 'tikmoq'], ['pattern', 'naqsh, bezak'],
+    ['stick', 'yopishtirmoq'], ['tug', 'kuch bilan tortmoq'], ['stitch', 'chok'], ['saxophone', 'saksofon'], ['compartment', 'kupe'],
+    ['luggage', 'yuk'], ['luggage-rack', 'yuk tokchasi'], ['trap', 'qopqon'], ['stable', 'otxona, barqaror'], ['mince', 'qiymalamoq'],
+    ['mincer', 'qiymalagich'], ['gem', 'qimmatbaho tosh'], ['filing-cabinet', 'qog’ozlar shkafi'], ['photograph', 'fotosurat'], ['duck', 'o’rdak, sho’ng’imoq'],
+    ['slide', 'diapozitiv'], ['snapshot', 'surat'], ['stranded', 'og’ir ahvolda qolgan'], ['bath', 'vanna'], ['cough', 'yo’tal'],
+    ['deckchair', 'shezlong'], ['funeral', 'dafn marosimi'], ['widow', 'beva ayol'], ['cemetery', 'qabriston'], ['duster', 'chang latta'],
+    ['dust', 'chang, changini artmoq'], ['beak', 'tumshuq'], ['nib', 'ruchka perosi'], ['foxglove', 'qo’ng’iroqchali gul'], ['umpire', 'hakam'],
+    ['offside', 'o’yindan tashqari holat'], ['wembley', 'futbol stadioni'], ['love', '0:0 (tennis)'], ['rust', 'zang'], ['rusty', 'zanglagan'],
+    ['lapel', 'yoqa'], ['crook', 'firibgar'], ['crooked', 'qiyshiq'], ['smile', 'tabassum'], ['bank', 'sohil'],
+    ['soccer', 'futbol'], ['danube', 'Tuna daryosi'], ['mining', 'konchilik'], ['circulation', 'tiraj, qon aylanishi'], ['reduction', 'kamaytirish'],
+    ['lettuce', 'karam'], ['editor', 'muharrir'], ['headboard', 'krovat boshi'], ['ponytail', 'soch turmagi (ot dumi)'], ['pony-trekking', 'ot sayri'],
+    ['slim', 'ozg’in'], ['blanket', 'adyol'], ['madness', 'jinnilik'], ['slip', 'toymoq'], ['paw', 'panja'],
+    ['purr', 'xurillamoq'], ['swan', 'oqqush'], ['sob', 'xo’rsinib yig’lamoq'], ['mortgage', 'uy qarzi'], ['tenor', 'tenor (ovoz)']
+],
+
+[
+    ['card', 'qattiq qog’oz, karta'], ['club', 'klub, klyushka'], ['clover', 'beda'], ['shuffle', 'oyoqni sudrab bosish, aralashtirish'], ['dark', 'qorong’u'],
+    ['hymn', 'madhiya'], ['prayer', 'duo'], ['widower', 'beva erkak'], ['locket', 'medalyon'], ['alarm clock', 'budilnik'],
+    ['stamp', 'muhr, marka'], ['kitchen timer', 'oshxona taymeri'], ['file', 'ish papkasi'], ['egg timer', 'qum soat'], ['flippers', 'suzgich (rezina)'],
+    ['lipstick', 'lab bo’yog’i'], ['compact', 'pudra'], ['cotton reel', 'g’altak'], ['headphones', 'naushniklar'], ['identification disc', 'shaxsni tasdiqlovchi disk'],
+    ['decanter', 'grafin'], ['absolutely', 'mutlaqo'], ['snap', 'qarsillatib berkitmoq'], ['angrily', 'g’azab bilan'], ['anxiously', 'xavotirli'],
+    ['briefly', 'qisqacha'], ['hurry', 'shoshilish'], ['icy', 'muzday'], ['disappointment', 'ko’ngil qolish'], ['continuously', 'davomli'],
+    ['courage', 'botirlik'], ['courageous', 'jasur'], ['surrender', 'taslim bo’lmoq'], ['force', 'kuch, majburlamoq'], ['deliberately', 'ataylab'],
+    ['accident', 'falokat, tasodif'], ['easily', 'oson'], ['extremely', 'juda'], ['finally', 'nihoyat'], ['attempt', 'say-harakat'],
+    ['fortunately', 'baxtga ko’ra'], ['seriously', 'jiddiy'], ['injured', 'jarohatlangan'], ['happily', 'xursand'], ['heavily', 'qattiq, og’ir'],
+    ['lately', 'yaqinda'], ['normally', 'odatiy'], ['patiently', 'sabr bilan'], ['soundly', 'ishonch bilan'], ['unexpectedly', 'kutilmaganda'],
+    ['violently', 'qattiq, kuch bilan'], ['violent', 'zo’ravon'], ['free', 'chiqarib olmoq'], ['struggle', 'kurashmoq'], ['trapped', 'tuzoqdagi'],
+    ['not only … but also', 'nafaqat … balki'], ['sort out', 'tartibga solmoq'], ['thorn', 'tikan'], ['admire', 'qoyil qolmoq'], ['admirer', 'muxlis'],
+    ['alloy', 'qotishma'], ['loyal', 'sodiq'], ['aloft', 'tepada'], ['float', 'suzmoq'], ['advantage', 'ustunlik'],
+    ['disadvantage', 'kamchilik'], ['backward', 'qoloq'], ['drawback', 'to’siq, nuqson'], ['blame', 'ayblamoq'], ['amble', 'yo’rg’alash'],
+    ['fur/bristle', 'qil, jun'], ['blister', 'po’rsildoq'], ['danger', 'xavf-xatar'], ['skid', 'sirg’anmoq'], ['ache', 'og’riq'],
+    ['pain', 'dard'], ['fade', 'rangini yo’qotmoq'], ['flea', 'burga'], ['flea market', 'eski bozor'], ['enlarge', 'kattalashtirmoq'],
+    ['impart', 'yetkazmoq, bag’ishlamoq'], ['armpit', 'qo’ltiq'], ['insure', 'sug’urtalamoq'], ['sunrise', 'quyosh chiqishi'], ['stream', 'daryocha, oqim'],
+    ['react', 'qarshilik qilmoq'], ['crate', 'yashik'], ['solemn', 'jiddiy, samimiy'], ['affection', 'muhabbat'], ['dishonest', 'vijdonsiz'],
+    ['dishonesty', 'vijdonsizlik'], ['cheat', 'qalloblik qilmoq'], ['palm', 'kaft, palma'], ['lamp', 'chiroq'], ['poem', 'she’r'],
+    ['go up/ascend', 'ko’tarilmoq'], ['watermelon', 'tarvuz'], ['melon', 'qovun']
+],
+
+[
+    ['mope', 'ma’yuslanmoq'], ['inch', 'dyum'], ['ulcer', 'yara'], ['cruel', 'shafqatsiz'], ['drawer', 'g’aladon'],
+    ['wicked/evil', 'yovuz'], ['wick', 'pilik'], ['tutor', 'repetitor'], ['the dishes', 'idish-tovoqlar'], ['grow', 'o’smoq'],
+    ['novel', 'roman'], ['parcel', 'posilka'], ['pet', 'uy hayvoni'], ['starve', 'och qolmoq'], ['feed', 'ovqatlantirmoq'],
+    ['spaceship', 'kosmik kema'], ['kite', 'varrak'], ['account', 'hisobot'], ['nail', 'mix, tirnoq'], ['knot', 'tugun'],
+    ['ribbon', 'lenta'], ['shoelace', 'bog’ich'], ['tie', 'bog’lamoq'], ['washing', 'yuviladigan kiyimlar'], ['washing-powder', 'kir yuvish kukuni'],
+    ['hang', 'osmoq'], ['sign', 'belgi, imzo qo’ymoq'], ['sign-language', 'kar-soqovlar tili'], ['signpost', 'yo’l ko’rsatkich'], ['mind', 'aql'],
+    ['border', 'chegara'], ['cross', 'xoch, o’tmoq'], ['victory', 'g’alaba'], ['celebrate', 'nishonlamoq'], ['promise', 'va’da'],
+    ['lie', 'yolg’on'], ['joke', 'hazil'], ['story', 'hikoya'], ['competition', 'musobaqa'], ['prize', 'mukofot'],
+    ['battle', 'jang'], ['logical', 'mantiqiy'], ['logic', 'mantiq'], ['ceiling', 'shift'], ['caretaker', 'nazoratchi'],
+    ['whistle', 'hushtak'], ['ballroom', 'raqs zali'], ['match', 'gugurt, o’yin, mos kelmoq'], ['matchstick', 'gugurt cho’pi'], ['matchbox', 'gugurt quti'],
+    ['cycle', 'velosiped minmoq'], ['check-up', 'tekshirmoq'], ['lamppost', 'chiroq ustuni'], ['lampshade', 'lampa qalpog’i'], ['graze', 'o’t yemoq'],
+    ['pavement', 'trotuar'], ['moth', 'kuya'], ['place', 'qo’ymoq'], ['oven', 'pechka'], ['garage', 'garaj'],
+    ['circus', 'sirk'], ['lane', 'yo’lak'], ['platform', 'platforma'], ['picnic', 'bog’ sayri'], ['choir', 'xo’r'],
+    ['visible', 'ko’zga ko’rinarli'], ['melt', 'erimoq'], ['shape', 'shakl'], ['arrival', 'kelish'], ['wishing', 'xohlovchi'],
+    ['manner', 'fe’l, tarz'], ['manners', 'o’zini tutish'], ['speech', 'nutq'], ['speechless', 'soqov'], ['handwriting', 'qo’lyozma'],
+    ['respect', 'hurmat'], ['baton', 'dirijyor tayog’i'], ['backwards', 'qoloq'], ['valid', 'yaroqli'], ['worn', 'eskirgan'],
+    ['invention', 'ixtiro'], ['conversation', 'suhbat'], ['productivity', 'mahsuldorlik'], ['collection', 'to’plam'], ['suit', 'yarashmoq'],
+    ['fit', 'to’g’ri kelmoq'], ['flatter', 'xushomad qilmoq'], ['flattering', 'xushomadgo’y'], ['witty', 'so’zga chechan'], ['suggest', 'taklif qilmoq'],
+    ['make sb laugh', 'kulmoq'], ['curator', 'qo’riqchi'], ['charge', 'ayblamoq'], ['compulsory', 'majburiy'], ['voluntary', 'ixtiyoriy'],
+    ['hijack', 'olib qochmoq'], ['hijacker', 'olib qochar']
+],
+
+[
+    ['hitchhike', 'yo’lovchi mashinalarda tekin sayohat qilmoq'], ['hitchhiker', 'tekinga sayohat qiluvchi'], ['unlikely', 'ehtimoldan yiroq'], ['timid', 'qo’rqoq'], ['coward', 'qo’rqoq'],
+    ['fell', 'tog’li hudud, daraxt kesmoq'], ['embarrassed', 'xijolatli'], ['embarrass', 'xijolat qilmoq'], ['blush', 'qizarmoq'], ['interest', 'foyda, hissa'],
+    ['interest on sth', 'foiz'], ['percentage', 'foiz, qism'], ['savings', 'jamg’arma'], ['maternity', 'onalik'], ['maternity ward', 'tug’ruqxona'],
+    ['undershirt / vest', 'mayka'], ['waistcoat / vest', 'jilet'], ['acquaintance', 'tanish'], ['torch / flashlight', 'fonar'], ['run on', 'ishlamoq'],
+    ['suntan', 'oftobda toblanish'], ['sunstroke', 'oftob urishi'], ['prune / dried plum', 'olxo’ri qoqisi'], ['twig', 'shox'], ['willow', 'tol'],
+    ['pant', 'halloslamoq'], ['proud (of)', 'faxrlangan'], ['weeds', 'motam kiyimi'], ['weed', 'begona o’t'], ['get rid (of)', 'qutilmoq'],
+    ['truncheon / baton', 'dubinka'], ['superstition', 'xurofot'], ['superstitious', 'irim-sirimga ishongan'], ['shade', 'soya (joy)'], ['shadow', 'soya (narsa)'],
+    ['wealthy / rich', 'boy'], ['abrupt / sudden', 'to’satdan'], ['ending', 'nihoya'], ['inquisitive / curious', 'qiziquvchan'], ['clumsy / awkward', 'besonaqay'],
+    ['idle / lazy', 'dangasa'], ['contented / satisfied', 'mamnun'], ['raw / uncooked', 'xom'], ['ancient / very old', 'qadimiy'], ['monument', 'yodgorlik'],
+    ['fortunate / lucky', 'omadli'], ['brisk / fast', 'chaqqon'], ['pace', 'qadam'], ['drowsy', 'uyqusiragan'], ['sleepy', 'uyquli'],
+    ['vain / conceited', 'mag’rur'], ['invaluable', 'qadrli'], ['priceless', 'bebaho'], ['possession', 'mol-mulk'], ['slender / slight', 'ozg’in'],
+    ['report', 'hisobot'], ['unbiased / fair', 'xolis'], ['delicious / tasty', 'mazali'], ['courteous / polite', 'hushmuomila'], ['defective / faulty', 'nuqsonli'],
+    ['absurd / ridiculous', 'bemani'], ['heated', 'qiziqqon'], ['heat', 'issiqlik'], ['stale', 'eskirgan (ovqat)'], ['pour', 'sharillab oqmoq'],
+    ['tease', 'masxara qilmoq'], ['defend', 'himoya qilmoq'], ['defender', 'himoyachi'], ['howl', 'uvullamoq'], ['sent off', 'chetlashtirmoq'],
+    ['foul', 'iflos, qoida buzish'], ['foul play', 'sport qoidasiga zid harakat'], ['court', 'ko’nglini olmoq'], ['the court', 'sud'], ['scene', 'joy, manzara'],
+    ['doubt', 'shubhalanmoq'], ['antique', 'antikvar'], ['leek', 'ko’kpiyoz'], ['deer', 'bug’u'], ['interfere', 'aralashmoq'],
+    ['picturesque', 'xushmanzara'], ['decline', 'rad etmoq, zaiflashmoq'], ['moderate', 'o’rtacha'], ['campaign', 'kampaniya'], ['receipt', 'kvitansiya'],
+    ['in case', 'mabodo'], ['snare', 'tuzoq'], ['survey', 'ko’zdan kechirmoq'], ['rehearse', 'repetitsiya qilmoq'], ['stain', 'dog’'],
+    ['spill', 'to’kmoq'], ['cheer', 'qichqiriq'], ['fear', 'qo’rquv'], ['fearless', 'jasur'], ['yacht', 'yaxta'],
+    ['regularly', 'muntazam'], ['sail', 'yelkan'], ['sailboard/windsurfer', 'yelkanli qayiq sporti'], ['mood', 'kayfiyat']
+],
+
+[
+    ['had better', 'yaxshisi'], ['watch', 'kuzatmoq, soat'], ['well', 'yaxshi, quduq'], ['fence', 'panjara, qilichbozlik'], ['change', 'o’zgartirmoq, mayda pul'],
+    ['note', 'sezmoq, qayd'], ['sight', 'ko’rish'], ['faint', 'behush, xushidan ketmoq'], ['bank', 'bank, sohil'], ['bear', 'ayiq, suyamoq'],
+    ['beat', 'urmoq, yutmoq'], ['knock', 'taqillatmoq'], ['knock out', 'nakaut qilmoq'], ['sharp', 'aniq, qattiq'], ['volunteer', 'ko’ngilli'],
+    ['blow', 'zarba, esmoq, gullamoq'], ['balloon', 'havo shari'], ['formal', 'rasmiy'], ['informal', 'norasmiy'], ['tie', 'galstuk, bog’lamoq'],
+    ['bend', 'egmoq'], ['bend down', 'egilmoq'], ['tip', 'uchi, choychaqa'], ['blow up', 'portlatmoq'], ['swallow', 'qaldirg’och, yutmoq'],
+    ['find', 'topilma, deb bilmoq'], ['election', 'saylov'], ['general', 'umumiy, general'], ['troop', 'to’da'], ['troops', 'askarlar'],
+    ['stamp', 'muhr, marka, tepmoq'], ['ground', 'yer, qo’ndirmoq'], ['cover', 'yopmoq, qoplamoq'], ['stuck-up', 'manman'], ['chew', 'chaynamoq'],
+    ['chewing gum', 'saqich'], ['gum', 'yelim, tish milki'], ['bleed', 'qon ketmoq'], ['season', 'fasl, ziravor solmoq'], ['lie', 'yotmoq, yolg’on'],
+    ['for a while', 'qisqa muddat'], ['shape', 'shakl, ko’rinish'], ['altogether', 'umuman, hammasi'], ['litter', 'axlat, bolalamoq'], ['litter-bin', 'axlat qutisi'],
+    ['shell', 'chig’anoq, po’choq'], ['explode', 'portlamoq'], ['unexploded', 'portlamagan'], ['certain', 'aniq, qat’iy'], ['certainly', 'shubhasiz'],
+    ['match', 'mos, o’yin'], ['ruler', 'chizg’ich, hokim'], ['letter', 'harf, xat'], ['letter-box', 'pochta qutisi'], ['silent', 'sokin'],
+    ['contain', 'o’z ichiga olmoq'], ['joint', 'bo’g’im, go’sht bo’lagi'], ['wrist', 'bilak'], ['flesh', 'go’sht'], ['salmon', 'losos'],
+    ['pink', 'pushti'], ['wreck', 'halokatga uchragan kema'], ['cupboard', 'shkaf'], ['creature', 'mavjudot'], ['gnome', 'gnom'],
+    ['mammal', 'sut emizuvchi'], ['whale', 'kit'], ['armour', 'sovut'], ['armoured', 'sovutli'], ['knight', 'ritsar'],
+    ['thyme', 'jambil'], ['needle', 'igna'], ['knit', 'to’qimoq'], ['knitwear', 'trikotaj'], ['calf', 'buzoq'],
+    ['veal', 'buzoq go’shti'], ['thumb', 'bosh barmoq'], ['explosive', 'portlovchi'], ['device', 'qurilma'], ['bomb', 'bomba'],
+    ['bombard', 'bombardimon qilmoq'], ['calm', 'sokin'], ['calm down', 'tinchlanmoq'], ['permanent', 'doimiy'], ['unable', 'layoqatsiz'],
+    ['raspberry', 'malina'], ['numb', 'karaxt'], ['knuckle', 'bilak bo’g’imi'], ['bite', 'tishlamoq'], ['gnat', 'chivin'],
+    ['perfume', 'atir'], ['smell', 'hid'], ['owe', 'qarz bo’lmoq'], ['debt', 'qarz'], ['wrinkle', 'ajin'],
+    ['item', 'predmet'], ['inherit', 'meros qilib olmoq'], ['inheritance', 'meros'], ['heir', 'merosxo’r'], ['truthful', 'rostgo’y']
+],
+
+[
+    ['honest', 'halol'], ['rope', 'arqon'], ['connect', 'bog’lamoq'], ['comb', 'taroq'], ['obvious', 'aniq'],
+    ['subtle', 'bilinar-bilinmas'], ['spirit', 'ruh'], ['percent', 'foiz'], ['half', 'yarim'], ['lamb', 'qo’zichoq'],
+    ['juicy', 'shirali'], ['poison', 'zahar'], ['poisonous', 'zaharli'], ['steep', 'tik'], ['hill', 'tepalik'],
+    ['mob', 'olomon'], ['angry mob', 'g’azabli olomon'], ['servant', 'xizmatkor'], ['loyal', 'sodiq'], ['urgent', 'shoshilinch'],
+    ['cut', 'qirqmoq'], ['haunted house', 'qarg’ish tekkan uy'], ['painful', 'azobli'], ['blind', 'ko’r'], ['deaf', 'kar'],
+    ['clothe', 'kiyintirmoq'], ['cloth', 'mato'], ['damp', 'nam'], ['infectious', 'yuqumli'], ['escape', 'qochmoq'],
+    ['storm', 'to’fon'], ['stormy', 'to’fonli'], ['parallel', 'parallel'], ['complexion', 'yuz tusi'], ['bump', 'zarba, g’urra'],
+    ['bumpy', 'o’nqir-cho’nqir'], ['statue', 'haykal'], ['got it', 'tushundim'], ['by the way', 'aytmoqchi'], ['how many times', 'necha marta'],
+    ['how much', 'qancha'], ['what about', 'nima haqida'], ['all over the world', 'butun dunyo bo’ylab'], ['spectacular', 'ajoyib'], ['over there', 'ana u yerda'],
+    ['fingerprint', 'barmoq izi'], ['for sale', 'sotuvda'], ['at all', 'umuman'], ['roleplay', 'rol o’ynamoq'], ['quite well', 'juda yaxshi'],
+    ['all right', 'hammasi joyida'], ['millions of', 'millionlab'], ['shoplifting', 'o’g’rilik'], ['have a good night', 'tuningiz xayrli bo’lsin'], ['have a good dream', 'yaxshi tushlar ko’ring'],
+    ['have a good time', 'vaqtingiz maroqli o’tsin'], ['a little bit', 'ozgina'], ['mostly', 'asosan'], ['lots of', 'ko’pgina'], ['take out', 'olib ketmoq'],
+    ['day after day', 'har kuni'], ['day after tomorrow', 'indinga'], ['what sort', 'qanday turdagi'], ['all around', 'butun atrofda'], ['out of order', 'ishlamaydi'],
+    ['overnight', 'kecha davomida'], ['sightseeing', 'joylarni tomosha qilish'], ['research', 'tadqiqot'], ['revision', 'taftish'], ['by now', 'endi'],
+    ['in some way', 'bir tarzda'], ['worth', 'qiymat'], ['wishes', 'orzular'], ['wherefore', 'sabab'], ['trusted', 'ishonchli'],
+    ['toast', 'qovirilgan non'], ['roast', 'qovurma'], ['renowned', 'mashhur'], ['renown', 'shuhrat'], ['pleased', 'mamnun'],
+    ['pardon', 'kechirmoq'], ['order', 'buyurtma'], ['network', 'tarmoq'], ['near-by', 'yonma-yon'], ['nearby', 'yaqin'],
+    ['homeless', 'boshpanasiz'], ['developing', 'rivojlanayotgan'], ['cruise', 'dengiz sayohati'], ['connection', 'aloqa'], ['compare', 'taqqoslamoq'],
+    ['bloom', 'gullamoq'], ['bloomy', 'gullayotgan'], ['circle', 'aylana']
+]
+];
+
+let currentSetIndex = 0;
+let quizList = [];
+let currentIndex = 0;
+let score = 0;
+
+
+const setNames = ["1-100", "101-200", "201-300", "301-400", "401-500","501-600","601-700","701-800","801-900","901-1000","1001-1100","1101-1200","1201-1300","1301-1400","1401-1500","1501-1593"];
+
+const selector = document.getElementById('set-selector');
+for(let s = 0; s < allSets.length; s++) {
+    let b = document.createElement('button');
+    b.className = `btn btn-outline-primary rounded-pill px-4 text-nowrap ${s === 0 ? 'active-set' : ''}`;
+
+    b.textContent = setNames[s];
+
+    b.onclick = () => changeSet(s, b);
+    selector.appendChild(b);
+}
+
+function changeSet(index, btn) {
+    document.querySelectorAll('.btn-outline-primary').forEach(b => b.classList.remove('active-set'));
+    if(btn) btn.classList.add('active-set');
+
+    currentSetIndex = index;
+    quizList = [...allSets[index]].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    score = 0;
+    renderSavol();
+}
+
+function renderSavol() {
+    if (quizList.length === 0) return;
+    const q = quizList[currentIndex];
+    document.getElementById('target-word').textContent = q[0];
+    document.getElementById('score-label').textContent = `Ball: ${score}`;
+    document.getElementById('counter-label').textContent = `${currentIndex + 1} / ${quizList.length}`;
+    document.getElementById('progress-fill').style.width = `${((currentIndex + 1) / quizList.length) * 100}%`;
+
+    let wrongOnes = allSets[currentSetIndex].filter(x => x[1] !== q[1]).map(x => x[1]);
+    if (wrongOnes.length < 3) wrongOnes = ["xato1", "xato2", "xato3"];
+
+    let opts = [q[1], ...wrongOnes.sort(() => Math.random() - 0.5).slice(0, 3)];
+    opts.sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'btn opt-btn';
+        b.textContent = o;
+        b.onclick = () => check(b, o, q[1]);
+        grid.appendChild(b);
+    });
+    document.getElementById('hint-btn').disabled = false;
+}
+
+function check(btn, selected, correct) {
+    const allBtns = document.querySelectorAll('.opt-btn');
+    allBtns.forEach(b => {
+        if(b.textContent === correct) b.classList.add('correct');
+        b.disabled = true;
+    });
+    if(selected === correct) {
+        score++;
+        btn.classList.add('correct');
+    } else {
+        btn.classList.add('wrong');
+    }
+    document.getElementById('score-label').textContent = `Ball: ${score}`;
+    document.getElementById('hint-btn').disabled = true;
+}
+
+function speak() {
+    const word = document.getElementById('target-word').textContent;
+    if (!window.speechSynthesis) return;
+
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(word);
+    msg.lang = 'en-US';
+    msg.rate = 0.9;
+
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice = voices.find(v => v.lang.includes('en'));
+    if (enVoice) msg.voice = enVoice;
+
+    window.speechSynthesis.speak(msg);
+}
+
+document.getElementById('hint-btn').onclick = function() {
+    const correct = quizList[currentIndex][1];
+    document.querySelectorAll('.opt-btn').forEach(b => {
+        if(b.textContent === correct) b.classList.add('correct');
+        b.disabled = true;
+    });
+    this.disabled = true;
+};
+
+document.getElementById('next-btn').onclick = () => {
+    if(currentIndex < quizList.length - 1) {
+        currentIndex++;
+        renderSavol();
+    } else {
+        alert(`Test tugadi! Natija: ${score} / ${quizList.length}`);
+        changeSet(currentSetIndex);
+    }
+};
+
+window.onload = () => {
+    changeSet(0);
+
+    window.speechSynthesis.getVoices();
+};
+
+const slider = document.getElementById('set-selector');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+slider.addEventListener('mousedown', (e) => {
+  isDown = true;
+  slider.classList.add('active');
+  startX = e.pageX - slider.offsetLeft;
+  scrollLeft = slider.scrollLeft;
+});
+
+slider.addEventListener('mouseleave', () => {
+  isDown = false;
+});
+
+slider.addEventListener('mouseup', () => {
+  isDown = false;
+});
+
+slider.addEventListener('mousemove', (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - slider.offsetLeft;
+  const walk = (x - startX) * 2;
+  slider.scrollLeft = scrollLeft - walk;
+});
+</script>
+<style>
+  :root {
+    --bg-color: #f0f4f8;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --primary: #4f46e5;
+    --success: #04bd23;
+    --error: #f50808;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    padding-bottom: 50px;
+}
+
+.quiz-card {
+    border-radius: 28px;
+    box-shadow: var(--card-shadow);
+    border: none;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.word-box {
+    background: #fefefe;
+    border: 2px solid #f2f4f6;
+    border-radius: 20px;
+    padding: 25px 15px;
+    margin: 15px 0;
+    box-shadow: 0 4px 6px -1px rgba(234, 15, 15, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.word-box:hover {
+    border-color: var(--primary);
+}
+
+.target-word {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0862f3;
+    margin-bottom: 5px;
+}
+
+.word-box p {
+    font-size: 0.75rem;
+    color: #94a3b8 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.opt-btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 18px;
+    font-weight: 600;
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.opt-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: #eef2ff;
+    color: var(--primary);
+}
+
+.correct {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: white !important;
+    transform: scale(1.02);
+}
+
+.wrong {
+    background: var(--error) !important;
+    border-color: var(--error) !important;
+    color: white !important;
+}
+
+.progress {
+    border-radius: 10px;
+    height: 10px !important;
+    background: #e2e8f0;
+}
+
+.progress-bar {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+.set-selector-wrapper button {
+    border-radius: 12px !important;
+    border: none;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.active-set {
+    background: var(--primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+</style>
+<div id="result-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index:9999; align-items:center; justify-content:center; padding: 20px;">
+  <div style="background:white; padding:30px; border-radius:30px; text-align:center; width:90%; max-width:400px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+    <div id="emoji-display" style="font-size: 4rem; margin-bottom: 10px;">🏆</div>
+    <h2 id="result-title" class="fw-bold mb-3">Test Yakunlandi!</h2>
+    <div id="result-text" class="fs-4 mb-4"></div>
+    <button onclick="location.reload()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">Boshidan boshlash 🔄</button>
+  </div>
+</div>
+
+<script>
+let wrongAnswers = 0;
+
+function check(btn, selected, correct) {
+    const allBtns = document.querySelectorAll('.opt-btn');
+    allBtns.forEach(b => {
+        if(b.textContent === correct) b.classList.add('correct');
+        b.disabled = true;
+    });
+
+    if(selected === correct) {
+        score++;
+        btn.classList.add('correct');
+    } else {
+        wrongAnswers++;
+        btn.classList.add('wrong');
+    }
+    document.getElementById('score-label').textContent = `Ball: ${score}`;
+    document.getElementById('hint-btn').disabled = true;
+}
+
+document.getElementById('next-btn').onclick = () => {
+    if(currentIndex < quizList.length - 1) {
+        currentIndex++;
+        renderSavol();
+    } else {
+        const modal = document.getElementById('result-modal');
+        const emoji = document.getElementById('emoji-display');
+        const title = document.getElementById('result-title');
+
+        let percentage = (score / quizList.length) * 100;
+        if(percentage >= 90) { emoji.textContent = '🥳'; title.textContent = 'Ajoyib! Mukammal!'; }
+        else if(percentage >= 70) { emoji.textContent = '🤩'; title.textContent = 'Juda yaxshi!'; }
+        else if(percentage >= 40) { emoji.textContent = '🤔'; title.textContent = 'Yaxshi urinish!'; }
+        else { emoji.textContent = '💪'; title.textContent = 'Yana o‘rganing!'; }
+
+        document.getElementById('result-text').innerHTML = `
+            <div class="text-success fw-bold fs-3">To‘g‘ri: ${score} ✅</div>
+            <div class="text-danger fw-bold fs-3 mb-3">Noto‘g‘ri: ${wrongAnswers} ❌</div>
+            <div class="text-muted">Umumiy: ${quizList.length} ta savol</div>
+        `;
+        modal.style.display = 'flex';
+    }
+};
+
+function changeSet(index, btn) {
+    document.querySelectorAll('.btn-outline-primary').forEach(b => b.classList.remove('active-set'));
+    if(btn) btn.classList.add('active-set');
+
+    currentSetIndex = index;
+    quizList = [...allSets[index]].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    score = 0;
+    wrongAnswers = 0;
+    renderSavol();
+}
+</script>
+</body>
+</html>
